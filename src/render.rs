@@ -2,6 +2,9 @@ use ggez::event::{self,EventHandler};
 use ggez::graphics::{self,Color, DrawParam};
 use ggez::{Context,ContextBuilder,GameResult};
 use ggez::glam::Vec2;
+use std::env;
+use std::path::PathBuf;
+
     pub struct Renderer {
         //TODO:定义渲染器的属性和方法
         blue_block:graphics::Image,
@@ -14,8 +17,12 @@ use ggez::glam::Vec2;
     impl Renderer {
         //TODO:实现渲染方法
         pub fn init(ctx: &mut Context) ->GameResult<Renderer> {
-            let blue_block = graphics::Image::from_path(ctx,"/home/aspasia/aspasia/RustDemo/Tetris_rust/assets/blue_block.png")?;
+            let mut resource_dir = PathBuf::from(env::current_exe()?);
+            resource_dir.pop();
+            resource_dir.push("assets/green_block.png");
+            println!("{:?}",resource_dir);
 
+            let blue_block = graphics::Image::from_path(ctx,"/home/aspasia/aspasia/RustDemo/Tetris_rust/assets/green_block.png")?;
             Ok(Renderer {blue_block})
         }
     }
