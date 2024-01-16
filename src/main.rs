@@ -17,8 +17,8 @@
 //     Poll,
 // }
 
+mod util;
 mod render;
-
 fn main() {
     // let event_loop = EventLoop::new().unwrap();
     // let window = Rc::new(WindowBuilder::new()
@@ -83,5 +83,6 @@ fn main() {
     if let Err(e) = render::run() {
         eprintln!("Error occurred: {}",e);
     }
+    
 
 }
