@@ -1,16 +1,16 @@
 use ggez::event::{self,EventHandler};
 use ggez::graphics::{self,Color, DrawParam, Rect};
-use ggez::{Context,ContextBuilder,GameResult};
+use ggez::{Context,ContextBuilder,GameResult, GameError};
 use ggez::glam::Vec2;
 use std::env;
 use std::path::{PathBuf, Path};
 use rand::Rng;
 
-use crate::util::{self, SCREEN_SIZE};
+use crate::util;
+use crate::block::Block;
     struct MainState {
         frames:usize,
-        image_blue_block: graphics::Image,
-        image_green_block: graphics::Image,
+        block:Block
     }
 
     impl MainState {
@@ -19,13 +19,11 @@ use crate::util::{self, SCREEN_SIZE};
                 "LiberationMono",
                 graphics::FontData::from_path(ctx,"/assets/font/LiberationMono-Regular.ttf")?,
             );
+            let block = Block::new(ctx)?;
 
-            let image_blue_block = graphics::Image::from_path(ctx,"/assets/pic/blue_block.png")?;
-            let image_green_block = graphics::Image::from_path(ctx, "/assets/pic/green_block.png")?;
             let s = MainState {
                 frames: 0,
-                image_blue_block,
-                image_green_block,
+                block:block,
                 };
             Ok(s)
         }
@@ -41,17 +39,16 @@ use crate::util::{self, SCREEN_SIZE};
                 graphics::Canvas::from_frame(ctx,graphics::Color::from([0.1,0.2,0.3,1.0]));
             
             //let offset = self.frames as f32/10.0;
-            let offset = rand::thread_rng().gen_range(1..=SCREEN_SIZE.0 as i32) as f32;
+            let offset = rand::thread_rng().gen_range(1..=util::SCREEN_SIZE.0 as i32) as f32;
             let dest_point = Vec2::new(offset,offset);
-            
-            //let rect:Rect = Rect::new(0.0, 0.0, 32.0, 32.0);
 
-            canvas.draw(&self.image_blue_block, 
+
+            canvas.draw(self.block.get_rand_pic(), 
                 DrawParam::new()
                         .dest(Vec2::new(util::GAME_BOARD_START_POSITION_X,util::GAME_BOARD_START_POSITION_Y))
                         .scale(util::PIC_SCALE_NUMBER));
             
-            canvas.draw(&self.image_green_block, 
+            canvas.draw(self.block.get_rand_pic(), 
                 DrawParam::new()
                         .dest(Vec2::new(util::GAME_BOARD_START_POSITION_X+util::CELL_SIZE_PER_GRID.0 as f32,util::GAME_BOARD_START_POSITION_Y))
                         .scale(util::PIC_SCALE_NUMBER));
