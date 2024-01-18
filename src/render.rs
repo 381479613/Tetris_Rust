@@ -1,15 +1,16 @@
 use ggez::event::{self,EventHandler};
-use ggez::graphics::{self,Color, DrawParam};
+use ggez::graphics::{self,Color, DrawParam, Rect};
 use ggez::{Context,ContextBuilder,GameResult};
 use ggez::glam::Vec2;
 use std::env;
 use std::path::{PathBuf, Path};
+use rand::Rng;
 
-use crate::util;
+use crate::util::{self, SCREEN_SIZE};
     struct MainState {
         frames:usize,
         image_blue_block: graphics::Image,
-
+        image_green_block: graphics::Image,
     }
 
     impl MainState {
@@ -20,10 +21,11 @@ use crate::util;
             );
 
             let image_blue_block = graphics::Image::from_path(ctx,"/assets/pic/blue_block.png")?;
-            
+            let image_green_block = graphics::Image::from_path(ctx, "/assets/pic/green_block.png")?;
             let s = MainState {
                 frames: 0,
                 image_blue_block,
+                image_green_block,
                 };
             Ok(s)
         }
@@ -38,17 +40,27 @@ use crate::util;
             let mut canvas = 
                 graphics::Canvas::from_frame(ctx,graphics::Color::from([0.1,0.2,0.3,1.0]));
             
-            let offset = self.frames as f32/10.0;
+            //let offset = self.frames as f32/10.0;
+            let offset = rand::thread_rng().gen_range(1..=SCREEN_SIZE.0 as i32) as f32;
             let dest_point = Vec2::new(offset,offset);
             
+            //let rect:Rect = Rect::new(0.0, 0.0, 32.0, 32.0);
 
-            canvas.draw(&self.image_blue_block, DrawParam::new().dest(dest_point));
+            canvas.draw(&self.image_blue_block, 
+                DrawParam::new()
+                        .dest(Vec2::new(util::GAME_BOARD_START_POSITION_X,util::GAME_BOARD_START_POSITION_Y))
+                        .scale(util::PIC_SCALE_NUMBER));
+            
+            canvas.draw(&self.image_green_block, 
+                DrawParam::new()
+                        .dest(Vec2::new(util::GAME_BOARD_START_POSITION_X+util::CELL_SIZE_PER_GRID.0 as f32,util::GAME_BOARD_START_POSITION_Y))
+                        .scale(util::PIC_SCALE_NUMBER));
 
             canvas.draw(
-                graphics::Text::new("Hello world!")
+                graphics::Text::new("Welcome")
                     .set_font("LiberationMono")
                     .set_scale(48.),
-                dest_point,
+                    util::SCORE_WORD_START_POSITION,
             );
             canvas.finish(ctx)?;
 

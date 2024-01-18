@@ -18,3 +18,4 @@ image = { version = "0.24", default-features = false, features = [
    "dxt",
    "jpeg"
 ] }
+rand = "0.8.5"
