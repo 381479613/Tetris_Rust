@@ -1,16 +1,15 @@
-use ggez::event::{self,EventHandler};
-use ggez::graphics::{self,Color, DrawParam, Rect};
-use ggez::{Context,ContextBuilder,GameResult, GameError};
+use ggez::event;
+use ggez::graphics::{self,DrawParam};
+use ggez::{Context,GameResult};
 use ggez::glam::Vec2;
 use std::env;
-use std::path::{PathBuf, Path};
-use rand::Rng;
+use std::path::PathBuf;
 
 use crate::util;
 use crate::block::Block;
     struct MainState {
         frames:usize,
-        block:Block
+        block:Block,
     }
 
     impl MainState {
@@ -37,10 +36,9 @@ use crate::block::Block;
         fn draw(&mut self, ctx:&mut Context) -> GameResult {
             let mut canvas = 
                 graphics::Canvas::from_frame(ctx,graphics::Color::from([0.1,0.2,0.3,1.0]));
-            
             //let offset = self.frames as f32/10.0;
-            let offset = rand::thread_rng().gen_range(1..=util::SCREEN_SIZE.0 as i32) as f32;
-            let dest_point = Vec2::new(offset,offset);
+            //let offset = rand::thread_rng().gen_range(1..=util::SCREEN_SIZE.0 as i32) as f32;
+            //let dest_point = Vec2::new(offset,offset);
 
 
             canvas.draw(self.block.get_rand_pic(), 
@@ -66,6 +64,15 @@ use crate::block::Block;
                 println!("FPS: {}",ctx.time.fps());
             }
             Ok(())
+        }
+
+        fn key_down_event(
+                &mut self,
+                ctx: &mut Context,
+                input: ggez::input::keyboard::KeyInput,
+                _repeated: bool,
+            ) -> Result<(), ggez::GameError> {
+                Ok(())
         }
     }
 
