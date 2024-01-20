@@ -2,11 +2,13 @@ use ggez::event;
 use ggez::graphics::{self,DrawParam};
 use ggez::{Context,GameResult};
 use ggez::glam::Vec2;
+use ggez::input::keyboard::{KeyCode,KeyInput};
 use std::env;
 use std::path::PathBuf;
 
-use crate::util;
+use crate::{util, block, input};
 use crate::block::Block;
+use crate::input::Direction;
     struct MainState {
         frames:usize,
         block:Block,
@@ -40,16 +42,7 @@ use crate::block::Block;
             //let offset = rand::thread_rng().gen_range(1..=util::SCREEN_SIZE.0 as i32) as f32;
             //let dest_point = Vec2::new(offset,offset);
 
-
-            canvas.draw(self.block.get_rand_pic(), 
-                DrawParam::new()
-                        .dest(Vec2::new(util::GAME_BOARD_START_POSITION_X,util::GAME_BOARD_START_POSITION_Y))
-                        .scale(util::PIC_SCALE_NUMBER));
-            
-            canvas.draw(self.block.get_rand_pic(), 
-                DrawParam::new()
-                        .dest(Vec2::new(util::GAME_BOARD_START_POSITION_X+util::CELL_SIZE_PER_GRID.0 as f32,util::GAME_BOARD_START_POSITION_Y))
-                        .scale(util::PIC_SCALE_NUMBER));
+            let _ = &self.block.draw(&mut canvas);
 
             canvas.draw(
                 graphics::Text::new("Welcome")
@@ -69,10 +62,16 @@ use crate::block::Block;
         fn key_down_event(
                 &mut self,
                 ctx: &mut Context,
-                input: ggez::input::keyboard::KeyInput,
+                input: KeyInput,
                 _repeated: bool,
             ) -> Result<(), ggez::GameError> {
-                Ok(())
+                match input.keycode {
+                    Some(KeyCode::Up) => self.block.move_to_top(),
+                    Some(KeyCode::Left) => self.block.move_to_left(),
+                    Some(KeyCode::Right) => self.block.move_to_right(),
+                    Some(KeyCode::Down) => self.block.move_to_bottom(),
+                    _ => Ok(()),
+                }
         }
     }
 
