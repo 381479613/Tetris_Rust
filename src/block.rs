@@ -8,6 +8,7 @@ use ggez::glam::Vec2;
 
 use crate::util::{self, GridPosition};
 
+
 pub struct Block {
     image_blue_block: graphics::Image,
     image_green_block: graphics::Image,
@@ -35,6 +36,10 @@ impl Block {
         })
     }
 
+    pub fn set_block_position(&self, pos:(i32,i32)) {
+        &self.position.set_grid_position(pos);
+    }
+
     pub fn get_rand_pic(&self) -> &graphics::Image {
         let mut rng = rand::thread_rng();
         let images = [
@@ -49,25 +54,68 @@ impl Block {
     }
 
     pub fn move_to_left(&mut self) -> Result<(),GameError> {
+        let grid_pos = self.position.get_grid_position();
+        if grid_pos.x <= 0.0 {
+            return Ok(()) ;
+        }
         Ok(self.position.move_to_left())
     }
 
     pub fn move_to_right(&mut self) -> Result<(),GameError>{
+        let grid_pos = self.position.get_grid_position();
+        if grid_pos.x >= 10.0 {
+            return Ok(());
+        }
         Ok(self.position.move_to_right())
     }
 
     pub fn move_to_top(&mut self) -> Result<(),GameError>{
+        let grid_pos = self.position.get_grid_position();
+        if grid_pos.y <= 0.0 {
+            return Ok(());
+        }
         Ok(self.position.move_to_top())
     }
 
     pub fn move_to_bottom(&mut self) -> Result<(),GameError>{
+        let grid_pos = self.position.get_grid_position();
+        if grid_pos.y >= 20.0 {
+            return Ok(());
+        }
         Ok(self.position.move_to_bottom())
     }
 
-    pub fn draw(&mut self, canvas: &mut Canvas) {
-        canvas.draw(self.get_rand_pic(), DrawParam::new()
+    pub fn draw(&mut self, canvas: &mut Canvas, pic: &graphics::Image) {
+        canvas.draw(pic, DrawParam::new()
         .dest(self.position.get_actual_position())
         .scale(util::PIC_SCALE_NUMBER));
     }
 
+}
+
+
+struct BlockGroup {
+    block1: Block,
+    block2: Block,
+    block3: Block,
+    block4: Block,
+    image: graphics::Image,
+    position: GridPosition,
+}
+
+impl BlockGroup {
+    fn random_group_generation(ctx: &mut Context) -> Self{
+        let block1 = Block::new(ctx).unwrap();
+        let block2 = Block::new(ctx).unwrap();
+        let block3 = Block::new(ctx).unwrap();
+        let block4 = Block::new(ctx).unwrap();
+
+        
+
+    }
+
+
+    fn draw(&mut self, canvas: &mut Canvas) {
+
+    }
 }

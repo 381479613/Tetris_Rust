@@ -6,9 +6,8 @@ use ggez::input::keyboard::{KeyCode,KeyInput};
 use std::env;
 use std::path::PathBuf;
 
-use crate::{util, block, input};
+use crate::util;
 use crate::block::Block;
-use crate::input::Direction;
     struct MainState {
         frames:usize,
         block:Block,
@@ -38,9 +37,6 @@ use crate::input::Direction;
         fn draw(&mut self, ctx:&mut Context) -> GameResult {
             let mut canvas = 
                 graphics::Canvas::from_frame(ctx,graphics::Color::from([0.1,0.2,0.3,1.0]));
-            //let offset = self.frames as f32/10.0;
-            //let offset = rand::thread_rng().gen_range(1..=util::SCREEN_SIZE.0 as i32) as f32;
-            //let dest_point = Vec2::new(offset,offset);
 
             let _ = &self.block.draw(&mut canvas);
 

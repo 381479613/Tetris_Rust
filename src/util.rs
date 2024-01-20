@@ -15,16 +15,12 @@ pub const SCREEN_SIZE: (f32,f32) = (
     WINDOW_GRID.1 as f32 * CELL_SIZE_PER_GRID.1 as f32,
 );
 
-pub const MOVE_SEEP: f32 = CELL_SIZE_PER_GRID.0 as f32;
-pub const DESIRED_FPS: u32 = 8;
-
-
 //pic scale number
 pub const PIC_SCALE_NUMBER: Vec2 = Vec2::new(0.22, 0.22);
 
 //from top-left
-pub const GAME_BOARD_START_POSITION_X: f32 = (WINDOW_GRID.0 - GRID_SIZE.0) as f32 * WINDOW_GRID.0 as f32;
-pub const GAME_BOARD_START_POSITION_Y: f32 = (WINDOW_GRID.1 - GRID_SIZE.1) as f32 * WINDOW_GRID.1 as f32;
+pub const GAME_BOARD_START_POSITION_X: f32 = (WINDOW_GRID.0 - GRID_SIZE.0) as f32/2.0 * WINDOW_GRID.0 as f32;
+pub const GAME_BOARD_START_POSITION_Y: f32 = (WINDOW_GRID.1 - GRID_SIZE.1) as f32/2.0 * WINDOW_GRID.1 as f32;
 
 pub const SCORE_WORD_START_POSITION: Vec2 = Vec2::new(SCREEN_SIZE.0 / 10.0 * 2.0, SCREEN_SIZE.1 /10.0 * 2.0);
 
@@ -39,9 +35,18 @@ impl GridPosition {
         GridPosition {x,y}
     }
 
+    pub fn get_grid_position(&self) -> Vec2 {
+        Vec2::new(self.x as f32, self.y as f32)
+    }
+
+    pub fn set_grid_position(&mut self, pos:(i32, i32)) {
+        self.x = pos.0;
+        self.y = pos.1;
+    }
+
     pub fn get_actual_position(&self) -> Vec2 {
-        let x = (self.x as f32 + 0.5) * CELL_SIZE_PER_GRID.0 as f32;
-        let y = (self.y as f32 + 0.5) * CELL_SIZE_PER_GRID.1 as f32;
+        let x = (self.x as f32 + 0.5) * CELL_SIZE_PER_GRID.0 as f32 + GAME_BOARD_START_POSITION_X;
+        let y = (self.y as f32 + 0.5) * CELL_SIZE_PER_GRID.1 as f32 + GAME_BOARD_START_POSITION_Y;
         Vec2::new(x, y)
     }
 
