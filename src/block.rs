@@ -53,36 +53,36 @@ impl Block {
         random_image
     }
 
-    pub fn move_to_left(&mut self) -> Result<(),GameError> {
+    pub fn move_to_left(&mut self) {
         let grid_pos = self.position.get_grid_position();
         if grid_pos.0 <= 0 {
-            return Ok(()) ;
+            return ;
         }
-        Ok(self.position.move_to_left())
+        self.position.move_to_left();
     }
 
-    pub fn move_to_right(&mut self) -> Result<(),GameError>{
+    pub fn move_to_right(&mut self) {
         let grid_pos = self.position.get_grid_position();
         if grid_pos.0 >= 10 {
-            return Ok(());
+            return ;
         }
-        Ok(self.position.move_to_right())
+        self.position.move_to_right();
     }
 
-    pub fn move_to_top(&mut self) -> Result<(),GameError>{
+    pub fn move_to_top(&mut self) {
         let grid_pos = self.position.get_grid_position();
         if grid_pos.1 <= 0 {
-            return Ok(());
+            return ;
         }
-        Ok(self.position.move_to_top())
+        self.position.move_to_top();
     }
 
-    pub fn move_to_bottom(&mut self) -> Result<(),GameError>{
+    pub fn move_to_bottom(&mut self) {
         let grid_pos = self.position.get_grid_position();
         if grid_pos.1 >= 20 {
-            return Ok(());
+            return ;
         }
-        Ok(self.position.move_to_bottom())
+        self.position.move_to_bottom();
     }
 
     pub fn draw(&mut self, canvas: &mut Canvas, pic: &graphics::Image) {
@@ -153,7 +153,41 @@ impl BlockGroup {
         self.block4.draw(canvas, &self.image);
     }
 
+    //actually no error detected :)
+    pub fn move_to_left(&mut self) -> Result<(), GameError>{
+        //TODO:边界检测
+        self.block1.move_to_left();
+        self.block2.move_to_left();
+        self.block3.move_to_left();
+        self.block4.move_to_left();
+        Ok(())
+    }
 
+    pub fn move_to_right(&mut self) -> Result<(), GameError>{
+        //TODO:边界检测
+        self.block1.move_to_right();
+        self.block2.move_to_right();
+        self.block3.move_to_right();
+        self.block4.move_to_right();
+        Ok(())
+    }
 
+    pub fn move_to_bottom(&mut self) -> Result<(), GameError>{
+        //Todo:碰撞检测
+        self.block1.move_to_bottom();
+        self.block2.move_to_bottom();
+        self.block3.move_to_bottom();
+        self.block4.move_to_bottom();
+        Ok(())
+    }
+
+    pub fn move_to_top(&mut self) -> Result<(), GameError>{
+        //Todo:碰撞检测
+        self.block1.move_to_top();
+        self.block2.move_to_top();
+        self.block3.move_to_top();
+        self.block4.move_to_top();
+        Ok(())
+    }
     
 }

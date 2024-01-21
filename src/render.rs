@@ -62,10 +62,10 @@ use crate::block::BlockGroup;
                 _repeated: bool,
             ) -> Result<(), ggez::GameError> {
                 match input.keycode {
-                    // Some(KeyCode::Up) => self.block.move_to_top(),
-                    // Some(KeyCode::Left) => self.block.move_to_left(),
-                    // Some(KeyCode::Right) => self.block.move_to_right(),
-                    // Some(KeyCode::Down) => self.block.move_to_bottom(),
+                    Some(KeyCode::Up) => self.blockgroup.move_to_top(),
+                    Some(KeyCode::Left) => self.blockgroup.move_to_left(),
+                    Some(KeyCode::Right) => self.blockgroup.move_to_right(),
+                    Some(KeyCode::Down) => self.blockgroup.move_to_bottom(),
                     _ => Ok(()),
                 }
         }
