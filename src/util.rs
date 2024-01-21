@@ -35,13 +35,19 @@ impl GridPosition {
         GridPosition {x,y}
     }
 
-    pub fn get_grid_position(&self) -> Vec2 {
-        Vec2::new(self.x as f32, self.y as f32)
+    pub fn get_grid_position(&self) -> (i32, i32) {
+        (self.x, self.y)
     }
 
     pub fn set_grid_position(&mut self, pos:(i32, i32)) {
         self.x = pos.0;
         self.y = pos.1;
+    }
+
+    pub fn add(&self, pos: (i32, i32)) -> (i32, i32) {
+        let x = self.x + pos.0;
+        let y = self.y + pos.1;
+        (x, y)
     }
 
     pub fn get_actual_position(&self) -> Vec2 {

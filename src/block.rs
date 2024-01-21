@@ -1,7 +1,7 @@
-use std::arch::x86_64::_SIDD_LEAST_SIGNIFICANT;
 
 //方块的生成与组合逻辑
 use rand::seq::SliceRandom;
+use rand::Rng;
 use ggez::graphics::{self,DrawParam,Canvas};
 use ggez::{Context,GameError};
 use ggez::glam::Vec2;
@@ -36,8 +36,8 @@ impl Block {
         })
     }
 
-    pub fn set_block_position(&self, pos:(i32,i32)) {
-        &self.position.set_grid_position(pos);
+    pub fn set_block_position(&mut self, pos:(i32,i32)) {
+        self.position.set_grid_position(pos);
     }
 
     pub fn get_rand_pic(&self) -> &graphics::Image {
@@ -55,7 +55,7 @@ impl Block {
 
     pub fn move_to_left(&mut self) -> Result<(),GameError> {
         let grid_pos = self.position.get_grid_position();
-        if grid_pos.x <= 0.0 {
+        if grid_pos.0 <= 0 {
             return Ok(()) ;
         }
         Ok(self.position.move_to_left())
@@ -63,7 +63,7 @@ impl Block {
 
     pub fn move_to_right(&mut self) -> Result<(),GameError>{
         let grid_pos = self.position.get_grid_position();
-        if grid_pos.x >= 10.0 {
+        if grid_pos.0 >= 10 {
             return Ok(());
         }
         Ok(self.position.move_to_right())
@@ -71,7 +71,7 @@ impl Block {
 
     pub fn move_to_top(&mut self) -> Result<(),GameError>{
         let grid_pos = self.position.get_grid_position();
-        if grid_pos.y <= 0.0 {
+        if grid_pos.1 <= 0 {
             return Ok(());
         }
         Ok(self.position.move_to_top())
@@ -79,7 +79,7 @@ impl Block {
 
     pub fn move_to_bottom(&mut self) -> Result<(),GameError>{
         let grid_pos = self.position.get_grid_position();
-        if grid_pos.y >= 20.0 {
+        if grid_pos.1 >= 20 {
             return Ok(());
         }
         Ok(self.position.move_to_bottom())
@@ -94,28 +94,66 @@ impl Block {
 }
 
 
-struct BlockGroup {
+pub struct BlockGroup {
     block1: Block,
     block2: Block,
     block3: Block,
     block4: Block,
     image: graphics::Image,
-    position: GridPosition,
+    position: GridPosition, //绝对坐标，所有里面的block会根据这个坐标进行偏移
 }
 
+const BLOCK_SHAPE: [[(i32,i32);4];4] = [
+    [ (0,0), (0,1), (1,0), (1,1)], //rect
+    [ (0,0), (0,1), (0,2), (0,3)], //bar
+    [ (0,0), (0,1), (1,1), (1,2)], //zigzag
+    [ (0,1), (1,0), (1,1), (1,2)], //T 
+];
+
 impl BlockGroup {
-    fn random_group_generation(ctx: &mut Context) -> Self{
-        let block1 = Block::new(ctx).unwrap();
-        let block2 = Block::new(ctx).unwrap();
-        let block3 = Block::new(ctx).unwrap();
-        let block4 = Block::new(ctx).unwrap();
-
+    pub fn random_group_generation(ctx: &mut Context) -> Self{
+        //init block
+        let mut block1 = Block::new(ctx).unwrap();
+        let mut block2 = Block::new(ctx).unwrap();
+        let mut block3 = Block::new(ctx).unwrap();
+        let mut block4 = Block::new(ctx).unwrap();
         
+        //init blockgroup position
+        let blockgroup_position = GridPosition::new(0, 0);
+
+        //random type
+        let rand_number = rand::thread_rng().gen_range(0..4);
+        println!("rand number: {rand_number}");
+        
+        let block_type = BLOCK_SHAPE[rand_number];
+    
+        block1.set_block_position(blockgroup_position.add(block_type[0]));
+        block2.set_block_position(blockgroup_position.add(block_type[1]));
+        block3.set_block_position(blockgroup_position.add(block_type[2]));
+        block4.set_block_position(blockgroup_position.add(block_type[3]));
+
+        //random image
+        let image = block1.get_rand_pic().clone();
+
+        BlockGroup {
+            block1: block1,
+            block2: block2,
+            block3: block3,
+            block4: block4,
+            image: image,
+            position: blockgroup_position,
+        }
 
     }
 
-
-    fn draw(&mut self, canvas: &mut Canvas) {
-
+    pub fn draw(&mut self, canvas: &mut Canvas) {
+        self.block1.draw(canvas, &self.image);
+        self.block2.draw(canvas, &self.image);
+        self.block3.draw(canvas, &self.image);
+        self.block4.draw(canvas, &self.image);
     }
+
+
+
+    
 }

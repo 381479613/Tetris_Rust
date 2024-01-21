@@ -7,10 +7,10 @@ use std::env;
 use std::path::PathBuf;
 
 use crate::util;
-use crate::block::Block;
+use crate::block::BlockGroup;
     struct MainState {
-        frames:usize,
-        block:Block,
+        frames: usize,
+        blockgroup: BlockGroup,
     }
 
     impl MainState {
@@ -19,11 +19,11 @@ use crate::block::Block;
                 "LiberationMono",
                 graphics::FontData::from_path(ctx,"/assets/font/LiberationMono-Regular.ttf")?,
             );
-            let block = Block::new(ctx)?;
+            let block_group = BlockGroup::random_group_generation(ctx);
 
             let s = MainState {
                 frames: 0,
-                block:block,
+                blockgroup: block_group,
                 };
             Ok(s)
         }
@@ -38,7 +38,7 @@ use crate::block::Block;
             let mut canvas = 
                 graphics::Canvas::from_frame(ctx,graphics::Color::from([0.1,0.2,0.3,1.0]));
 
-            let _ = &self.block.draw(&mut canvas);
+            let _ = &self.blockgroup.draw(&mut canvas);
 
             canvas.draw(
                 graphics::Text::new("Welcome")
@@ -62,10 +62,10 @@ use crate::block::Block;
                 _repeated: bool,
             ) -> Result<(), ggez::GameError> {
                 match input.keycode {
-                    Some(KeyCode::Up) => self.block.move_to_top(),
-                    Some(KeyCode::Left) => self.block.move_to_left(),
-                    Some(KeyCode::Right) => self.block.move_to_right(),
-                    Some(KeyCode::Down) => self.block.move_to_bottom(),
+                    // Some(KeyCode::Up) => self.block.move_to_top(),
+                    // Some(KeyCode::Left) => self.block.move_to_left(),
+                    // Some(KeyCode::Right) => self.block.move_to_right(),
+                    // Some(KeyCode::Down) => self.block.move_to_bottom(),
                     _ => Ok(()),
                 }
         }
