@@ -2,7 +2,7 @@
 use ggez::glam::Vec2;
 
 //total grid size in whole game board
-const GRID_SIZE: (i32,i32) = (10,20);
+pub const GRID_SIZE: (i32,i32) = (10,20);
 
 //the whole window should wilder than the game goard
 const WINDOW_GRID: (i32,i32) = (GRID_SIZE.0 + 10, GRID_SIZE.1 + 10);

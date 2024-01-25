@@ -4,7 +4,6 @@ use rand::seq::SliceRandom;
 use rand::Rng;
 use ggez::graphics::{self,DrawParam,Canvas};
 use ggez::{Context,GameError};
-use ggez::glam::Vec2;
 
 use crate::util::{self, GridPosition};
 
@@ -53,6 +52,14 @@ impl Block {
         random_image
     }
 
+    pub fn boundary_check(&self) -> bool {
+        let result = self.position.get_grid_position();
+        if result.0 <= 0 || result.0 >= util::GRID_SIZE.0 || result.1 <= 0 || result.1 >= util::GRID_SIZE.1 {
+            return false;
+        }
+        return true;
+    }
+
     pub fn move_to_left(&mut self) {
         let grid_pos = self.position.get_grid_position();
         if grid_pos.0 <= 0 {
@@ -61,12 +68,30 @@ impl Block {
         self.position.move_to_left();
     }
 
+    pub fn can_move_to_left(&self) -> bool{
+        let grid_pos = self.position.get_grid_position();
+        if grid_pos.0 <= 0 {
+            false
+        } else {
+            true
+        }
+    }
+
     pub fn move_to_right(&mut self) {
         let grid_pos = self.position.get_grid_position();
-        if grid_pos.0 >= 10 {
+        if grid_pos.0 >= util::GRID_SIZE.0 {
             return ;
         }
         self.position.move_to_right();
+    }
+
+    pub fn can_move_to_right(&self) -> bool{
+        let grid_pos = self.position.get_grid_position();
+        if grid_pos.0 >= util::GRID_SIZE.0 {
+            false
+        } else {
+            true
+        }
     }
 
     pub fn move_to_top(&mut self) {
@@ -75,6 +100,14 @@ impl Block {
             return ;
         }
         self.position.move_to_top();
+    }
+    pub fn can_move_to_top(&self) -> bool{
+        let grid_pos = self.position.get_grid_position();
+        if grid_pos.1 <= 0 {
+            false
+        } else {
+            true
+        }
     }
 
     pub fn move_to_bottom(&mut self) {
@@ -85,6 +118,14 @@ impl Block {
         self.position.move_to_bottom();
     }
 
+    pub fn can_move_to_bottom(&self) -> bool{
+        let grid_pos = self.position.get_grid_position();
+        if grid_pos.1 >= util::GRID_SIZE.1 {
+            false
+        } else {
+            true
+        }
+    }
     pub fn draw(&mut self, canvas: &mut Canvas, pic: &graphics::Image) {
         canvas.draw(pic, DrawParam::new()
         .dest(self.position.get_actual_position())
@@ -155,7 +196,18 @@ impl BlockGroup {
 
     //actually no error detected :)
     pub fn move_to_left(&mut self) -> Result<(), GameError>{
-        //TODO:边界检测
+        if !self.block1.can_move_to_left() {
+            return Ok(())
+        }
+        if !self.block2.can_move_to_left() {
+            return Ok(())
+        }
+        if !self.block3.can_move_to_left() {
+            return Ok(())
+        }
+        if !self.block4.can_move_to_left() {
+            return Ok(())
+        }
         self.block1.move_to_left();
         self.block2.move_to_left();
         self.block3.move_to_left();
@@ -164,7 +216,18 @@ impl BlockGroup {
     }
 
     pub fn move_to_right(&mut self) -> Result<(), GameError>{
-        //TODO:边界检测
+        if !self.block1.can_move_to_right() {
+            return Ok(())
+        }
+        if !self.block2.can_move_to_right() {
+            return Ok(())
+        }
+        if !self.block3.can_move_to_right() {
+            return Ok(())
+        }
+        if !self.block4.can_move_to_right() {
+            return Ok(())
+        }
         self.block1.move_to_right();
         self.block2.move_to_right();
         self.block3.move_to_right();
@@ -173,7 +236,18 @@ impl BlockGroup {
     }
 
     pub fn move_to_bottom(&mut self) -> Result<(), GameError>{
-        //Todo:碰撞检测
+        if !self.block1.can_move_to_bottom() {
+            return Ok(())
+        }
+        if !self.block2.can_move_to_bottom() {
+            return Ok(())
+        }
+        if !self.block3.can_move_to_bottom() {
+            return Ok(())
+        }
+        if !self.block4.can_move_to_bottom() {
+            return Ok(())
+        }
         self.block1.move_to_bottom();
         self.block2.move_to_bottom();
         self.block3.move_to_bottom();
@@ -182,7 +256,18 @@ impl BlockGroup {
     }
 
     pub fn move_to_top(&mut self) -> Result<(), GameError>{
-        //Todo:碰撞检测
+        if !self.block1.can_move_to_top() {
+            return Ok(())
+        }
+        if !self.block2.can_move_to_top() {
+            return Ok(())
+        }
+        if !self.block3.can_move_to_top() {
+            return Ok(())
+        }
+        if !self.block4.can_move_to_top() {
+            return Ok(())
+        }
         self.block1.move_to_top();
         self.block2.move_to_top();
         self.block3.move_to_top();
