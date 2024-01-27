@@ -188,15 +188,15 @@ pub struct BlockGroup {
     block2: Block,
     block3: Block,
     block4: Block,
-    image: graphics::Image,
     position: GridPosition, //绝对坐标，所有里面的block会根据这个坐标进行偏移
+    type_num: usize,
 }
 
-const BLOCK_SHAPE: [[(i32,i32);4];4] = [
+const BLOCK_SHAPE: [[(i32,i32);4];9] = [
     [ (0,0), (0,1), (1,0), (1,1)], //rect
-    [ (0,0), (0,1), (0,2), (0,3)], //bar
-    [ (0,0), (0,1), (1,1), (1,2)], //zigzag
-    [ (0,1), (1,0), (1,1), (1,2)], //T 
+    [ (0,0), (0,1), (0,2), (0,3)], [ (0,0), (1,0), (2,0), (3,0)], //bar
+    [ (0,0), (0,1), (1,1), (1,2)], [ (0,1), (1,0), (1,1), (2,0)], //zigzag
+    [ (0,1), (1,0), (1,1), (1,2)], [ (0,1), (1,1), (1,2), (2,1)], [ (1,0), (1,1), (1,2), (2,1)], [ (0,1), (1,0), (1,1), (2,1)]//T 
 ];
 
 impl BlockGroup {
@@ -211,7 +211,7 @@ impl BlockGroup {
         let blockgroup_position = GridPosition::new(0, 0);
 
         //random type
-        let rand_number = rand::thread_rng().gen_range(0..4);
+        let rand_number = rand::thread_rng().gen_range(0..9);
         println!("rand number: {rand_number}");
         
         let block_type = BLOCK_SHAPE[rand_number];
@@ -233,8 +233,8 @@ impl BlockGroup {
             block2: block2,
             block3: block3,
             block4: block4,
-            image: image,
             position: blockgroup_position,
+            type_num: rand_number,
         }
 
     }
@@ -439,6 +439,54 @@ impl BlockGroup {
             return false;
         }
         return true;
+    }
+
+    pub fn change_status(&mut self, static_block: &StaticBlockGroup) -> Result<(),GameError>{
+        match self.type_num {
+            0 => {Ok(())}
+            1 | 2 => {
+                self.type_num = if self.type_num == 1 {
+                    2
+                } else {
+                    1
+                };
+                let block_type = BLOCK_SHAPE[self.type_num];
+                self.block1.set_block_position(self.position.add(block_type[0]));
+                self.block2.set_block_position(self.position.add(block_type[1]));
+                self.block3.set_block_position(self.position.add(block_type[2]));
+                self.block4.set_block_position(self.position.add(block_type[3]));
+                Ok(())
+
+            }
+            3 | 4 => {
+                self.type_num = if self.type_num == 3 {
+                    4
+                } else {
+                    3
+                };
+                let block_type = BLOCK_SHAPE[self.type_num];
+                self.block1.set_block_position(self.position.add(block_type[0]));
+                self.block2.set_block_position(self.position.add(block_type[1]));
+                self.block3.set_block_position(self.position.add(block_type[2]));
+                self.block4.set_block_position(self.position.add(block_type[3]));
+                Ok(())
+            }
+
+            5 |6 |7 |8 => {
+                self.type_num = if self.type_num < 8 {
+                    self.type_num + 1
+                } else {
+                    5
+                };
+                let block_type = BLOCK_SHAPE[self.type_num];
+                self.block1.set_block_position(self.position.add(block_type[0]));
+                self.block2.set_block_position(self.position.add(block_type[1]));
+                self.block3.set_block_position(self.position.add(block_type[2]));
+                self.block4.set_block_position(self.position.add(block_type[3]));
+                Ok(())
+            }
+            _ => {Err(GameError::ConfigError("type Error!".to_string()))}
+        }
     }
 
 }

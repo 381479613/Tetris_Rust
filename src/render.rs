@@ -77,7 +77,7 @@ const FALL_TIME: usize = 100;
                 _repeated: bool,
             ) -> Result<(), ggez::GameError> {
                 match input.keycode {
-                    Some(KeyCode::Up) => self.blockgroup.move_to_top(),
+                    Some(KeyCode::Up) => self.blockgroup.change_status(&self.static_block),
                     Some(KeyCode::Left) => self.blockgroup.move_to_left(&self.static_block),
                     Some(KeyCode::Right) => self.blockgroup.move_to_right(&self.static_block),
                     Some(KeyCode::Down) => self.blockgroup.move_to_bottom(&self.static_block),
