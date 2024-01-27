@@ -202,8 +202,10 @@ impl BlockGroup {
 
     }
 
-    pub fn collision_detection(&self) -> bool {
+    pub fn collision_detection(&self, static_block: &StaticBlockGroup) -> bool {
+        
         return false;
+        
     }
 
     pub fn draw(&mut self, canvas: &mut Canvas) {
@@ -212,19 +214,25 @@ impl BlockGroup {
         self.block3.draw(canvas);
         self.block4.draw(canvas);
     }
+    pub fn can_move_to_left(&self) -> bool {
+        if !self.block1.can_move_to_left() {
+            return false;
+        }
+        if !self.block2.can_move_to_left() {
+            return false;
+        }
+        if !self.block3.can_move_to_left() {
+            return false;
+        }
+        if !self.block4.can_move_to_left() {
+            return false;
+        }
+        return true;
+    }
 
     //actually no error detected :)
     pub fn move_to_left(&mut self) -> Result<(), GameError>{
-        if !self.block1.can_move_to_left() {
-            return Ok(())
-        }
-        if !self.block2.can_move_to_left() {
-            return Ok(())
-        }
-        if !self.block3.can_move_to_left() {
-            return Ok(())
-        }
-        if !self.block4.can_move_to_left() {
+        if self.can_move_to_left() == false {
             return Ok(())
         }
         self.block1.move_to_left();
@@ -234,17 +242,24 @@ impl BlockGroup {
         Ok(())
     }
 
-    pub fn move_to_right(&mut self) -> Result<(), GameError>{
+    pub fn can_move_to_right(&self) -> bool {
         if !self.block1.can_move_to_right() {
-            return Ok(())
+            return false;
         }
         if !self.block2.can_move_to_right() {
-            return Ok(())
+            return false;
         }
         if !self.block3.can_move_to_right() {
-            return Ok(())
+            return false;
         }
         if !self.block4.can_move_to_right() {
+            return false;
+        }
+        return true;
+    }
+
+    pub fn move_to_right(&mut self) -> Result<(), GameError>{
+        if self.can_move_to_right() == false {
             return Ok(())
         }
         self.block1.move_to_right();
@@ -254,17 +269,24 @@ impl BlockGroup {
         Ok(())
     }
 
-    pub fn move_to_bottom(&mut self) -> Result<(), GameError>{
+    pub fn can_move_to_bottom(&self) -> bool {
         if !self.block1.can_move_to_bottom() {
-            return Ok(())
+            return false;
         }
         if !self.block2.can_move_to_bottom() {
-            return Ok(())
+            return false;
         }
         if !self.block3.can_move_to_bottom() {
-            return Ok(())
+            return false;
         }
         if !self.block4.can_move_to_bottom() {
+            return false;
+        }
+        return true;
+    }
+
+    pub fn move_to_bottom(&mut self) -> Result<(), GameError>{
+        if self.can_move_to_bottom() == false {
             return Ok(())
         }
         self.block1.move_to_bottom();
@@ -274,17 +296,24 @@ impl BlockGroup {
         Ok(())
     }
 
-    pub fn move_to_top(&mut self) -> Result<(), GameError>{
+    pub fn can_move_to_top(&self) -> bool {
         if !self.block1.can_move_to_top() {
-            return Ok(())
+            return false;
         }
         if !self.block2.can_move_to_top() {
-            return Ok(())
+            return false;
         }
         if !self.block3.can_move_to_top() {
-            return Ok(())
+            return false;
         }
         if !self.block4.can_move_to_top() {
+            return false;
+        }
+        return true;
+    }
+
+    pub fn move_to_top(&mut self) -> Result<(), GameError>{
+        if self.can_move_to_top() == false {
             return Ok(())
         }
         self.block1.move_to_top();
