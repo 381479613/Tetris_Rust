@@ -137,6 +137,19 @@ impl Block {
             true
         }
     }
+
+    pub fn check_collision_down(&self, static_block: &StaticBlockGroup) -> bool {
+        let grid_pos = self.position.get_grid_position();
+        let try_pos = (grid_pos.0, grid_pos.1 + 1);
+
+        for block in static_block.get_block_vec() {
+            if try_pos == block.position.get_grid_position() {
+                return true;
+            }
+        }
+        return false;
+    }
+
     pub fn draw(&mut self, canvas: &mut Canvas) {
         canvas.draw(&self.image, DrawParam::new()
         .dest(self.position.get_actual_position())
@@ -203,9 +216,14 @@ impl BlockGroup {
     }
 
     pub fn collision_detection(&self, static_block: &StaticBlockGroup) -> bool {
-        
+        //if blockgroup cant fall, collsion occurred
+        if !self.can_move_to_bottom() {
+            return true;
+        }
+        if !self.can_fell(static_block) {
+            return true;
+        }
         return false;
-        
     }
 
     pub fn draw(&mut self, canvas: &mut Canvas) {
@@ -322,6 +340,22 @@ impl BlockGroup {
         self.block4.move_to_top();
         Ok(())
     }
+
+    pub fn can_fell(&self, static_block: &StaticBlockGroup) -> bool {
+        if self.block1.check_collision_down(static_block) {
+            return false;
+        }
+        if self.block2.check_collision_down(static_block) {
+            return false;
+        }
+        if self.block3.check_collision_down(static_block) {
+            return false;
+        }
+        if self.block4.check_collision_down(static_block) {
+            return false;
+        }
+        return true;
+    }
     
 }
 
@@ -335,6 +369,10 @@ impl StaticBlockGroup {
         StaticBlockGroup{ 
             block_vec, 
         }
+    }
+
+    pub fn get_block_vec(&self) -> Vec<Block> {
+        self.block_vec.clone()
     }
 
     pub fn add_group_to_static(&mut self, block_group: &BlockGroup) {
