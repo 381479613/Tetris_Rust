@@ -37,13 +37,14 @@ const FALL_TIME: usize = 100;
     impl event::EventHandler<ggez::GameError> for MainState {
         fn update(&mut self, ctx: &mut Context) -> GameResult {
             if ctx.time.ticks() % FALL_TIME == 0 {
-                let _ = self.blockgroup.move_to_bottom();
+                let _ = self.blockgroup.move_to_bottom(&self.static_block);
                 if self.blockgroup.collision_detection(&self.static_block) {
                     //if collision occurred, add blockgroup to static block and new a blockgroup
                     self.static_block.add_group_to_static(&self.blockgroup);
                     self.blockgroup = BlockGroup::random_group_generation(ctx);
                 }
             }
+            
             Ok(())
         }
 
@@ -77,9 +78,9 @@ const FALL_TIME: usize = 100;
             ) -> Result<(), ggez::GameError> {
                 match input.keycode {
                     Some(KeyCode::Up) => self.blockgroup.move_to_top(),
-                    Some(KeyCode::Left) => self.blockgroup.move_to_left(),
-                    Some(KeyCode::Right) => self.blockgroup.move_to_right(),
-                    Some(KeyCode::Down) => self.blockgroup.move_to_bottom(),
+                    Some(KeyCode::Left) => self.blockgroup.move_to_left(&self.static_block),
+                    Some(KeyCode::Right) => self.blockgroup.move_to_right(&self.static_block),
+                    Some(KeyCode::Down) => self.blockgroup.move_to_bottom(&self.static_block),
                     _ => Ok(()),
                 }
         }

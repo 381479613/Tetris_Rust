@@ -150,6 +150,30 @@ impl Block {
         return false;
     }
 
+    pub fn check_collision_right(&self, static_block: &StaticBlockGroup) -> bool {
+        let grid_pos = self.position.get_grid_position();
+        let try_pos = (grid_pos.0 + 1, grid_pos.1);
+
+        for block in static_block.get_block_vec() {
+            if try_pos == block.position.get_grid_position() {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    pub fn check_collision_left(&self, static_block: &StaticBlockGroup) -> bool {
+        let grid_pos = self.position.get_grid_position();
+        let try_pos = (grid_pos.0 - 1, grid_pos.1);
+
+        for block in static_block.get_block_vec() {
+            if try_pos == block.position.get_grid_position() {
+                return true;
+            }
+        }
+        return false;
+    }
+
     pub fn draw(&mut self, canvas: &mut Canvas) {
         canvas.draw(&self.image, DrawParam::new()
         .dest(self.position.get_actual_position())
@@ -226,6 +250,21 @@ impl BlockGroup {
         return false;
     }
 
+    pub fn collision_right_detection(&self, static_block: &StaticBlockGroup) -> bool {
+        if !self.can_right_in_static_block(static_block) {
+            return true;
+        }
+        return false;
+    }
+
+    pub fn collision_left_detection(&self, static_block: &StaticBlockGroup) -> bool {
+        if !self.can_left_in_static_block(static_block) {
+            return true;
+        }
+        return false;
+    }
+    
+
     pub fn draw(&mut self, canvas: &mut Canvas) {
         self.block1.draw(canvas);
         self.block2.draw(canvas);
@@ -249,14 +288,18 @@ impl BlockGroup {
     }
 
     //actually no error detected :)
-    pub fn move_to_left(&mut self) -> Result<(), GameError>{
+    pub fn move_to_left(&mut self, static_block: &StaticBlockGroup) -> Result<(), GameError>{
         if self.can_move_to_left() == false {
+            return Ok(())
+        }
+        if self.collision_left_detection(static_block) {
             return Ok(())
         }
         self.block1.move_to_left();
         self.block2.move_to_left();
         self.block3.move_to_left();
         self.block4.move_to_left();
+        self.position.move_to_left();
         Ok(())
     }
 
@@ -276,14 +319,18 @@ impl BlockGroup {
         return true;
     }
 
-    pub fn move_to_right(&mut self) -> Result<(), GameError>{
+    pub fn move_to_right(&mut self, static_block: &StaticBlockGroup) -> Result<(), GameError>{
         if self.can_move_to_right() == false {
+            return Ok(())
+        }
+        if self.collision_right_detection(static_block) == true {
             return Ok(())
         }
         self.block1.move_to_right();
         self.block2.move_to_right();
         self.block3.move_to_right();
         self.block4.move_to_right();
+        self.position.move_to_right();
         Ok(())
     }
 
@@ -303,14 +350,18 @@ impl BlockGroup {
         return true;
     }
 
-    pub fn move_to_bottom(&mut self) -> Result<(), GameError>{
+    pub fn move_to_bottom(&mut self, static_block: &StaticBlockGroup) -> Result<(), GameError>{
         if self.can_move_to_bottom() == false {
+            return Ok(())
+        }
+        if self.collision_detection(static_block) == true {
             return Ok(())
         }
         self.block1.move_to_bottom();
         self.block2.move_to_bottom();
         self.block3.move_to_bottom();
         self.block4.move_to_bottom();
+        self.position.move_to_bottom();
         Ok(())
     }
 
@@ -338,6 +389,7 @@ impl BlockGroup {
         self.block2.move_to_top();
         self.block3.move_to_top();
         self.block4.move_to_top();
+        self.position.move_to_top();
         Ok(())
     }
 
@@ -356,7 +408,39 @@ impl BlockGroup {
         }
         return true;
     }
-    
+
+    pub fn can_right_in_static_block(&self, static_block: &StaticBlockGroup) -> bool {
+        if self.block1.check_collision_right(static_block) {
+            return false;
+        }
+        if self.block2.check_collision_right(static_block) {
+            return false;
+        }
+        if self.block3.check_collision_right(static_block) {
+            return false;
+        }
+        if self.block4.check_collision_right(static_block) {
+            return false;
+        }
+        return true;
+    }
+
+    pub fn can_left_in_static_block(&self, static_block: &StaticBlockGroup) -> bool {
+        if self.block1.check_collision_left(static_block) {
+            return false;
+        }
+        if self.block2.check_collision_left(static_block) {
+            return false;
+        }
+        if self.block3.check_collision_left(static_block) {
+            return false;
+        }
+        if self.block4.check_collision_left(static_block) {
+            return false;
+        }
+        return true;
+    }
+
 }
 
 pub struct StaticBlockGroup {
