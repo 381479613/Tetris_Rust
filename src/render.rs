@@ -7,10 +7,13 @@ use std::env;
 use std::path::PathBuf;
 
 use crate::util;
-use crate::block::BlockGroup;
+use crate::block::{BlockGroup, StaticBlockGroup};
+
+const FALL_TIME: usize = 100;
     struct MainState {
         frames: usize,
         blockgroup: BlockGroup,
+        static_block: StaticBlockGroup,
     }
 
     impl MainState {
@@ -20,17 +23,27 @@ use crate::block::BlockGroup;
                 graphics::FontData::from_path(ctx,"/assets/font/LiberationMono-Regular.ttf")?,
             );
             let block_group = BlockGroup::random_group_generation(ctx);
+            let static_block = StaticBlockGroup::new();
 
             let s = MainState {
                 frames: 0,
                 blockgroup: block_group,
+                static_block: static_block,
                 };
             Ok(s)
         }
     }
 
     impl event::EventHandler<ggez::GameError> for MainState {
-        fn update(&mut self, _ctx: &mut Context) -> GameResult {
+        fn update(&mut self, ctx: &mut Context) -> GameResult {
+            //println!("{:?}",ctx.time.ticks());
+            if ctx.time.ticks() % FALL_TIME == 0 {
+                let _ = self.blockgroup.move_to_bottom();
+                if self.blockgroup.collision_detection() {
+                    self.static_block.add_group_to_static(&self.blockgroup);
+                    self.blockgroup = BlockGroup::random_group_generation(ctx);
+                }
+            }
             Ok(())
         }
 
@@ -39,6 +52,7 @@ use crate::block::BlockGroup;
                 graphics::Canvas::from_frame(ctx,graphics::Color::from([0.1,0.2,0.3,1.0]));
 
             let _ = &self.blockgroup.draw(&mut canvas);
+            let _ = &self.static_block.draw(&mut canvas);
 
             canvas.draw(
                 graphics::Text::new("Welcome")

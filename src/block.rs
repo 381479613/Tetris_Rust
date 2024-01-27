@@ -1,4 +1,3 @@
-
 //方块的生成与组合逻辑
 use rand::seq::SliceRandom;
 use rand::Rng;
@@ -7,49 +6,61 @@ use ggez::{Context,GameError};
 
 use crate::util::{self, GridPosition};
 
+const DEFAULT_POSITION: (i32,i32) = (0,0);
 
+#[derive(Clone)]
 pub struct Block {
-    image_blue_block: graphics::Image,
-    image_green_block: graphics::Image,
-    image_purple_block: graphics::Image,
-    image_red_block: graphics::Image,
-    image_yellow_block: graphics::Image,
+    image: graphics::Image,
     position: GridPosition,
 }
 
 impl Block {
-    pub fn new(ctx: &mut Context) -> Result<Self, GameError>{
-        let blue = graphics::Image::from_path(ctx,"/assets/pic/blue_block.png")?;
-        let green = graphics::Image::from_path(ctx, "/assets/pic/green_block.png")?;
-        let purple = graphics::Image::from_path(ctx, "/assets/pic/purple_block.png")?;
-        let red = graphics::Image::from_path(ctx, "/assets/pic/red_block.png")?;
-        let yellow = graphics::Image::from_path(ctx, "/assets/pic/yellow_block.png")?;
+    pub fn new(ctx: &mut Context) -> Self{
+        let image = Block::get_rand_pic(ctx);
+        let position = GridPosition::new(DEFAULT_POSITION.0,DEFAULT_POSITION.1);
 
-        let position = GridPosition::new(0, 0);
-        Ok(Self{image_blue_block: blue,
-            image_green_block: green,
-            image_purple_block: purple,
-            image_red_block: red,
-            image_yellow_block: yellow,
+        Self{
+            image: image,
             position: position,
-        })
+        }
     }
 
     pub fn set_block_position(&mut self, pos:(i32,i32)) {
         self.position.set_grid_position(pos);
     }
 
-    pub fn get_rand_pic(&self) -> &graphics::Image {
+    pub fn get_rand_pic(ctx: &mut Context) -> graphics::Image {
         let mut rng = rand::thread_rng();
-        let images = [
-            &self.image_blue_block,
-            &self.image_green_block,
-            &self.image_purple_block,
-            &self.image_red_block,
-            &self.image_yellow_block,
-        ];
-        let random_image = *images.choose(&mut rng).unwrap();
+        let random_num = rng.gen_range(1..=5);
+        let random_image = {
+        match random_num {
+            1 => {
+                graphics::Image::from_path(ctx,"/assets/pic/blue_block.png")
+            }
+            2 => {
+                graphics::Image::from_path(ctx, "/assets/pic/green_block.png")
+            }
+            3 => {
+                graphics::Image::from_path(ctx, "/assets/pic/purple_block.png")
+            }
+            4 => {
+                graphics::Image::from_path(ctx, "/assets/pic/red_block.png")
+            }
+            5 => {
+                graphics::Image::from_path(ctx, "/assets/pic/yellow_block.png")
+            }
+            _ => {Err(GameError::GraphicsInitializationError)}
+        }
+        }.unwrap();
         random_image
+    }
+
+    pub fn set_pic(&mut self, pic: &graphics::Image) {
+        self.image = pic.clone();
+    }
+
+    pub fn get_pic(&self) -> graphics::Image {
+        self.image.clone()
     }
 
     pub fn boundary_check(&self) -> bool {
@@ -126,8 +137,8 @@ impl Block {
             true
         }
     }
-    pub fn draw(&mut self, canvas: &mut Canvas, pic: &graphics::Image) {
-        canvas.draw(pic, DrawParam::new()
+    pub fn draw(&mut self, canvas: &mut Canvas) {
+        canvas.draw(&self.image, DrawParam::new()
         .dest(self.position.get_actual_position())
         .scale(util::PIC_SCALE_NUMBER));
     }
@@ -154,10 +165,10 @@ const BLOCK_SHAPE: [[(i32,i32);4];4] = [
 impl BlockGroup {
     pub fn random_group_generation(ctx: &mut Context) -> Self{
         //init block
-        let mut block1 = Block::new(ctx).unwrap();
-        let mut block2 = Block::new(ctx).unwrap();
-        let mut block3 = Block::new(ctx).unwrap();
-        let mut block4 = Block::new(ctx).unwrap();
+        let mut block1 = Block::new(ctx);
+        let mut block2 = Block::new(ctx);
+        let mut block3 = Block::new(ctx);
+        let mut block4 = Block::new(ctx);
         
         //init blockgroup position
         let blockgroup_position = GridPosition::new(0, 0);
@@ -174,7 +185,11 @@ impl BlockGroup {
         block4.set_block_position(blockgroup_position.add(block_type[3]));
 
         //random image
-        let image = block1.get_rand_pic().clone();
+        let image = block1.get_pic();
+        block1.set_pic(&image);
+        block2.set_pic(&image);
+        block3.set_pic(&image);
+        block4.set_pic(&image);
 
         BlockGroup {
             block1: block1,
@@ -187,11 +202,15 @@ impl BlockGroup {
 
     }
 
+    pub fn collision_detection(&self) -> bool {
+        return false;
+    }
+
     pub fn draw(&mut self, canvas: &mut Canvas) {
-        self.block1.draw(canvas, &self.image);
-        self.block2.draw(canvas, &self.image);
-        self.block3.draw(canvas, &self.image);
-        self.block4.draw(canvas, &self.image);
+        self.block1.draw(canvas);
+        self.block2.draw(canvas);
+        self.block3.draw(canvas);
+        self.block4.draw(canvas);
     }
 
     //actually no error detected :)
@@ -275,4 +294,38 @@ impl BlockGroup {
         Ok(())
     }
     
+}
+
+pub struct StaticBlockGroup {
+    block_vec: Vec<Block>,
+}
+
+impl StaticBlockGroup {
+    pub fn new() -> Self{
+        let block_vec: Vec<Block>= Vec::new();
+        StaticBlockGroup{ 
+            block_vec, 
+        }
+    }
+
+    pub fn add_group_to_static(&mut self, block_group: &BlockGroup) {
+        let _ = &self.block_vec.push(block_group.block1.clone());
+        let _ = &self.block_vec.push(block_group.block2.clone());
+        let _ = &self.block_vec.push(block_group.block3.clone());
+        let _ = &self.block_vec.push(block_group.block4.clone());
+    }
+
+    pub fn remove_from_static(&mut self, index: usize) {
+        let _ = &self.block_vec.remove(index);
+    }
+
+    pub fn draw(&mut self, canvas: &mut Canvas) {
+        if self.block_vec.is_empty() {
+            return ;
+        }
+        self.block_vec.iter_mut().for_each(|b|{
+            b.draw(canvas);
+        });
+    }
+
 }

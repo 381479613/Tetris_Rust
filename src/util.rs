@@ -24,7 +24,7 @@ pub const GAME_BOARD_START_POSITION_Y: f32 = (WINDOW_GRID.1 - GRID_SIZE.1) as f3
 
 pub const SCORE_WORD_START_POSITION: Vec2 = Vec2::new(SCREEN_SIZE.0 / 10.0 * 2.0, SCREEN_SIZE.1 /10.0 * 2.0);
 
-
+#[derive(Clone)]
 pub struct GridPosition {
     x: i32,
     y: i32,
@@ -34,6 +34,7 @@ impl GridPosition {
     pub fn new(x: i32, y: i32) -> Self{
         GridPosition {x,y}
     }
+
 
     pub fn get_grid_position(&self) -> (i32, i32) {
         (self.x, self.y)
