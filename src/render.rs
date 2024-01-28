@@ -41,6 +41,9 @@ const FALL_TIME: usize = 100;
                 if self.blockgroup.collision_detection(&self.static_block) {
                     //if collision occurred, add blockgroup to static block and new a blockgroup
                     self.static_block.add_group_to_static(&self.blockgroup);
+                    println!("static_block_size: {}",self.static_block.get_block_size());
+
+                    self.static_block.eliminate_check();
                     self.blockgroup = BlockGroup::random_group_generation(ctx);
                 }
             }

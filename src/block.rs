@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 //方块的生成与组合逻辑
 use rand::seq::SliceRandom;
 use rand::Rng;
@@ -27,6 +29,10 @@ impl Block {
 
     pub fn set_block_position(&mut self, pos:(i32,i32)) {
         self.position.set_grid_position(pos);
+    }
+
+    pub fn get_block_position(&self) -> (i32,i32) {
+        self.position.get_grid_position()
     }
 
     pub fn get_rand_pic(ctx: &mut Context) -> graphics::Image {
@@ -142,7 +148,7 @@ impl Block {
         let grid_pos = self.position.get_grid_position();
         let try_pos = (grid_pos.0, grid_pos.1 + 1);
 
-        for block in static_block.get_block_vec() {
+        for block in static_block.get_block_map().values() {
             if try_pos == block.position.get_grid_position() {
                 return true;
             }
@@ -154,7 +160,7 @@ impl Block {
         let grid_pos = self.position.get_grid_position();
         let try_pos = (grid_pos.0 + 1, grid_pos.1);
 
-        for block in static_block.get_block_vec() {
+        for block in static_block.get_block_map().values() {
             if try_pos == block.position.get_grid_position() {
                 return true;
             }
@@ -166,7 +172,7 @@ impl Block {
         let grid_pos = self.position.get_grid_position();
         let try_pos = (grid_pos.0 - 1, grid_pos.1);
 
-        for block in static_block.get_block_vec() {
+        for block in static_block.get_block_map().values() {
             if try_pos == block.position.get_grid_position() {
                 return true;
             }
@@ -492,39 +498,81 @@ impl BlockGroup {
 }
 
 pub struct StaticBlockGroup {
-    block_vec: Vec<Block>,
+    //add a hash map to store position and index
+    block_map: HashMap<(i32, i32), Block>
 }
 
 impl StaticBlockGroup {
     pub fn new() -> Self{
-        let block_vec: Vec<Block>= Vec::new();
+        let block_map = HashMap::new();
         StaticBlockGroup{ 
-            block_vec, 
+            block_map: block_map,
         }
     }
 
-    pub fn get_block_vec(&self) -> Vec<Block> {
-        self.block_vec.clone()
+    pub fn get_block_map(&self) -> HashMap<(i32, i32), Block> {
+        self.block_map.clone()
     }
 
     pub fn add_group_to_static(&mut self, block_group: &BlockGroup) {
-        let _ = &self.block_vec.push(block_group.block1.clone());
-        let _ = &self.block_vec.push(block_group.block2.clone());
-        let _ = &self.block_vec.push(block_group.block3.clone());
-        let _ = &self.block_vec.push(block_group.block4.clone());
+        self.block_map.insert(block_group.block1.get_block_position(), block_group.block1.clone());
+        self.block_map.insert(block_group.block2.get_block_position(), block_group.block2.clone());
+        self.block_map.insert(block_group.block3.get_block_position(), block_group.block3.clone());
+        self.block_map.insert(block_group.block4.get_block_position(), block_group.block4.clone());
     }
 
-    pub fn remove_from_static(&mut self, index: usize) {
-        let _ = &self.block_vec.remove(index);
+    pub fn get_block_size(&self) -> usize {
+        self.block_map.len()
+    }
+    pub fn remove_from_static(&mut self, position: (i32, i32)) {
+        let _ = &self.block_map.remove(&position);
+    }
+
+    pub fn eliminate_check(&mut self) {
+        if self.block_map.is_empty() {
+            return 
+        }
+        let mut vec_should_eliminate : Vec<i32> = Vec::new();
+        let mut flag = true;
+        for y in 0..=util::GRID_SIZE.1 {
+            flag = true;
+             for x in 0..=util::GRID_SIZE.0 {
+                if !self.block_map.contains_key(&(x,y)) {
+                    flag = false;
+                    break;
+                }
+            }
+            //if out of the x range, then the line should be eliminated.
+            if flag == true {
+                vec_should_eliminate.push(y);
+            }
+        }
+        println!("{:?}", vec_should_eliminate);
+        self.do_eliminate(&vec_should_eliminate);
+        self.fell_from_upper(&vec_should_eliminate);
+    }
+
+    fn do_eliminate(&mut self, vec_should_eliminate: &Vec<i32>) {
+        //remove block in every y row
+        for y in vec_should_eliminate {
+            for x in 0..=util::GRID_SIZE.0 {
+                let index = self.block_map.get(&(x,*y));
+                self.block_map.remove(&(x,*y));
+            }
+        }
+    }
+
+    fn fell_from_upper(&self, vec_should_eliminate: &Vec<i32>) {
+        
     }
 
     pub fn draw(&mut self, canvas: &mut Canvas) {
-        if self.block_vec.is_empty() {
+        if self.block_map.is_empty() {
             return ;
         }
-        self.block_vec.iter_mut().for_each(|b|{
-            b.draw(canvas);
-        });
+        for block in self.block_map.values_mut() {
+            block.draw(canvas);
+        };
     }
 
 }
