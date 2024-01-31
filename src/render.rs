@@ -18,10 +18,10 @@ const FALL_TIME: usize = 100;
 
     impl MainState {
         fn new(ctx:&mut Context) -> GameResult<MainState> {
-            // ctx.gfx.add_font(
-            //     "LiberationMono",
-            //     graphics::FontData::from_path(ctx,"/assets/font/LiberationMono-Regular.ttf")?,
-            // );
+            ctx.gfx.add_font(
+                "LiberationMono",
+                graphics::FontData::from_path(ctx,"/assets/font/LiberationMono-Regular.ttf")?,
+            );
             let block_group = BlockGroup::random_group_generation(ctx);
             let static_block = StaticBlockGroup::new();
 
@@ -60,7 +60,7 @@ const FALL_TIME: usize = 100;
 
             canvas.draw(
                 graphics::Text::new("Welcome")
-                    //.set_font("LiberationMono")
+                    .set_font("LiberationMono")
                     .set_scale(48.),
                     util::SCORE_WORD_START_POSITION,
             );

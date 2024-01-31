@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use ggez::context::Has;
 //方块的生成与组合逻辑
 use rand::seq::SliceRandom;
 use rand::Rng;
@@ -220,21 +221,19 @@ impl BlockGroup {
         let random = rand::thread_rng().gen_range(0..4);
         let rand_number = match random {
             0 => {
-                0
+                Ok(0)
             }
             1 => {
-                rand::thread_rng().gen_range(1..=2)
+                Ok(rand::thread_rng().gen_range(1..=2))
             }
             2 => {
-                rand::thread_rng().gen_range(3..=4)
+                Ok(rand::thread_rng().gen_range(3..=4))
             }
             3 => {
-                rand::thread_rng().gen_range(5..=8)
+                Ok(rand::thread_rng().gen_range(5..=8))
             }
-            _ => { 0 }
-        };
-        println!("rand number: {rand_number}");
-        
+            _ => { Err(()) }
+        }.expect("rand_number Error!");
         let block_type = BLOCK_SHAPE[rand_number];
     
         block1.set_block_position(blockgroup_position.add(block_type[0]));
@@ -556,7 +555,7 @@ impl StaticBlockGroup {
                     break;
                 }
             }
-            //if out of the x range, then the line should be eliminated.
+            //if out of the x range, then the row should be eliminated.
             if flag == true {
                 self.do_eliminate(y);
                 self.fell_from_upper(y);
@@ -572,12 +571,17 @@ impl StaticBlockGroup {
     }
 
     fn fell_from_upper(&mut self, y: i32) {
-        for block in self.block_map.values_mut() {
-            let pos = block.get_block_position();
+        let mut update_block_map: HashMap<(i32,i32),Block> = HashMap::new();
+
+        for (pos,block) in self.block_map.iter_mut() {
+            let mut new_key = *pos;
             if pos.1 < y {
                 block.set_block_position((pos.0, pos.1 + 1));
+                new_key = (pos.0, pos.1 +1);
             }
+            update_block_map.insert(new_key, block.clone());
         }
+        self.block_map = update_block_map;
     }
 
     pub fn draw(&mut self, canvas: &mut Canvas) {
