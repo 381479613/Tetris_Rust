@@ -217,7 +217,22 @@ impl BlockGroup {
         let blockgroup_position = GridPosition::new(0, 0);
 
         //random type
-        let rand_number = rand::thread_rng().gen_range(0..9);
+        let random = rand::thread_rng().gen_range(0..4);
+        let rand_number = match random {
+            0 => {
+                0
+            }
+            1 => {
+                rand::thread_rng().gen_range(1..=2)
+            }
+            2 => {
+                rand::thread_rng().gen_range(3..=4)
+            }
+            3 => {
+                rand::thread_rng().gen_range(5..=8)
+            }
+            _ => { 0 }
+        };
         println!("rand number: {rand_number}");
         
         let block_type = BLOCK_SHAPE[rand_number];
