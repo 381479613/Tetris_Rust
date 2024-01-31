@@ -532,7 +532,6 @@ impl StaticBlockGroup {
         if self.block_map.is_empty() {
             return 
         }
-        let mut vec_should_eliminate : Vec<i32> = Vec::new();
         let mut flag = true;
         for y in 0..=util::GRID_SIZE.1 {
             flag = true;
@@ -544,26 +543,26 @@ impl StaticBlockGroup {
             }
             //if out of the x range, then the line should be eliminated.
             if flag == true {
-                vec_should_eliminate.push(y);
+                self.do_eliminate(y);
+                self.fell_from_upper(y);
             }
         }
-        println!("{:?}", vec_should_eliminate);
-        self.do_eliminate(&vec_should_eliminate);
-        self.fell_from_upper(&vec_should_eliminate);
     }
 
-    fn do_eliminate(&mut self, vec_should_eliminate: &Vec<i32>) {
+    fn do_eliminate(&mut self, y: i32) {
         //remove block in every y row
-        for y in vec_should_eliminate {
-            for x in 0..=util::GRID_SIZE.0 {
-                let index = self.block_map.get(&(x,*y));
-                self.block_map.remove(&(x,*y));
-            }
+        for x in 0..=util::GRID_SIZE.0 {
+            self.block_map.remove(&(x,y));
         }
     }
 
-    fn fell_from_upper(&self, vec_should_eliminate: &Vec<i32>) {
-        
+    fn fell_from_upper(&mut self, y: i32) {
+        for block in self.block_map.values_mut() {
+            let pos = block.get_block_position();
+            if pos.1 < y {
+                block.set_block_position((pos.0, pos.1 + 1));
+            }
+        }
     }
 
     pub fn draw(&mut self, canvas: &mut Canvas) {
