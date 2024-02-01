@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 
 use ggez::context::Has;
-//方块的生成与组合逻辑
 use rand::seq::SliceRandom;
 use rand::Rng;
 use ggez::graphics::{self,DrawParam,Canvas};
@@ -195,15 +194,16 @@ pub struct BlockGroup {
     block2: Block,
     block3: Block,
     block4: Block,
-    position: GridPosition, //绝对坐标，所有里面的block会根据这个坐标进行偏移
+    position: GridPosition,
     type_num: usize,
 }
 
-const BLOCK_SHAPE: [[(i32,i32);4];9] = [
+const BLOCK_SHAPE: [[(i32,i32);4];11] = [
     [ (0,0), (0,1), (1,0), (1,1)], //rect
     [ (0,0), (0,1), (0,2), (0,3)], [ (0,0), (1,0), (2,0), (3,0)], //bar
     [ (0,0), (0,1), (1,1), (1,2)], [ (0,1), (1,0), (1,1), (2,0)], //zigzag
-    [ (0,1), (1,0), (1,1), (1,2)], [ (0,1), (1,1), (1,2), (2,1)], [ (1,0), (1,1), (1,2), (2,1)], [ (0,1), (1,0), (1,1), (2,1)]//T 
+    [ (0,2), (0,1), (1,1), (1,0)], [ (0,0), (1,0), (1,1), (2,1)], //zigzag
+    [ (0,1), (1,0), (1,1), (1,2)], [ (0,1), (1,1), (1,2), (2,1)], [ (1,0), (1,1), (1,2), (2,1)], [ (0,1), (1,0), (1,1), (2,1)] //T
 ];
 
 impl BlockGroup {
@@ -230,7 +230,10 @@ impl BlockGroup {
                 Ok(rand::thread_rng().gen_range(3..=4))
             }
             3 => {
-                Ok(rand::thread_rng().gen_range(5..=8))
+                Ok(rand::thread_rng().gen_range(5..=6))
+            }
+            4 => {
+                Ok(rand::thread_rng().gen_range(7..=10))
             }
             _ => { Err(()) }
         }.expect("rand_number Error!");
@@ -463,20 +466,13 @@ impl BlockGroup {
 
     pub fn change_status(&mut self, static_block: &StaticBlockGroup) -> Result<(),GameError>{
         match self.type_num {
-            0 => {Ok(())}
+            0 => {}
             1 | 2 => {
                 self.type_num = if self.type_num == 1 {
                     2
                 } else {
                     1
-                };
-                let block_type = BLOCK_SHAPE[self.type_num];
-                self.block1.set_block_position(self.position.add(block_type[0]));
-                self.block2.set_block_position(self.position.add(block_type[1]));
-                self.block3.set_block_position(self.position.add(block_type[2]));
-                self.block4.set_block_position(self.position.add(block_type[3]));
-                Ok(())
-
+                }
             }
             3 | 4 => {
                 self.type_num = if self.type_num == 3 {
@@ -484,29 +480,31 @@ impl BlockGroup {
                 } else {
                     3
                 };
-                let block_type = BLOCK_SHAPE[self.type_num];
-                self.block1.set_block_position(self.position.add(block_type[0]));
-                self.block2.set_block_position(self.position.add(block_type[1]));
-                self.block3.set_block_position(self.position.add(block_type[2]));
-                self.block4.set_block_position(self.position.add(block_type[3]));
-                Ok(())
             }
-
-            5 |6 |7 |8 => {
-                self.type_num = if self.type_num < 8 {
-                    self.type_num + 1
+            5 | 6 => {
+                self.type_num = if self.type_num == 5 {
+                    6
                 } else {
                     5
                 };
-                let block_type = BLOCK_SHAPE[self.type_num];
-                self.block1.set_block_position(self.position.add(block_type[0]));
-                self.block2.set_block_position(self.position.add(block_type[1]));
-                self.block3.set_block_position(self.position.add(block_type[2]));
-                self.block4.set_block_position(self.position.add(block_type[3]));
-                Ok(())
+            } 
+
+            7 |8 |9 |10 => {
+                self.type_num = if self.type_num < 10 {
+                    self.type_num + 1
+                } else {
+                    7
+                };
             }
-            _ => {Err(GameError::ConfigError("type Error!".to_string()))}
+            _ => {}
         }
+
+        let block_type = BLOCK_SHAPE[self.type_num];
+        self.block1.set_block_position(self.position.add(block_type[0]));
+        self.block2.set_block_position(self.position.add(block_type[1]));
+        self.block3.set_block_position(self.position.add(block_type[2]));
+        self.block4.set_block_position(self.position.add(block_type[3]));
+        Ok(())
     }
 
 }

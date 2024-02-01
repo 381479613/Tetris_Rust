@@ -1,7 +1,6 @@
 mod util;
 mod render;
 mod block;
-mod input;
 
 fn main() {
 

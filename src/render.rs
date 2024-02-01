@@ -15,6 +15,8 @@ const FALL_TIME: usize = 100;
         blockgroup: BlockGroup,
         static_block: StaticBlockGroup,
         game_over: bool,
+        //set a flag, when collision detected, not add to static block immediately, wait for next setp 
+        flag: bool,
     }
 
     impl MainState {
@@ -26,12 +28,14 @@ const FALL_TIME: usize = 100;
             let block_group = BlockGroup::random_group_generation(ctx);
             let static_block = StaticBlockGroup::new();
             let game_over = false;
+            let flag = false;
 
             let s = MainState {
                 frames: 0,
                 blockgroup: block_group,
                 static_block: static_block,
                 game_over: game_over,
+                flag: flag,
                 };
             Ok(s)
         }
@@ -41,13 +45,17 @@ const FALL_TIME: usize = 100;
         fn update(&mut self, ctx: &mut Context) -> GameResult {
             if ctx.time.ticks() % FALL_TIME == 0 {
                 let _ = self.blockgroup.move_to_bottom(&self.static_block);
-                if self.blockgroup.collision_detection(&self.static_block) {
+                if self.flag == true {
                     //if collision occurred, add blockgroup to static block and new a blockgroup
                     self.static_block.add_group_to_static(&self.blockgroup);
                     println!("static_block_size: {}",self.static_block.get_block_size());
 
                     self.static_block.eliminate_check();
                     self.blockgroup = BlockGroup::random_group_generation(ctx);
+                    self.flag = false;
+                }
+                if self.blockgroup.collision_detection(&self.static_block) {
+                    self.flag = true;
                 }
                 if self.static_block.check_game_over() == true {
                     self.game_over = true;
@@ -75,8 +83,8 @@ const FALL_TIME: usize = 100;
             else {
                 let image_gameover = graphics::Image::from_path(ctx, "/assets/pic/game_over.jpeg")?;
                 canvas.draw(&image_gameover, DrawParam::new()
-                .dest(Vec2::new(10.0,10.0))
-                .scale(Vec2::new(1.0,1.0)));
+                .dest(Vec2::new(10.0,50.0))
+                .scale(Vec2::new(1.2,1.2)));
             }
 
             canvas.finish(ctx)?;
