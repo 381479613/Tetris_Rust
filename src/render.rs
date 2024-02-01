@@ -14,6 +14,7 @@ const FALL_TIME: usize = 100;
         frames: usize,
         blockgroup: BlockGroup,
         static_block: StaticBlockGroup,
+        game_over: bool,
     }
 
     impl MainState {
@@ -24,11 +25,13 @@ const FALL_TIME: usize = 100;
             );
             let block_group = BlockGroup::random_group_generation(ctx);
             let static_block = StaticBlockGroup::new();
+            let game_over = false;
 
             let s = MainState {
                 frames: 0,
                 blockgroup: block_group,
                 static_block: static_block,
+                game_over: game_over,
                 };
             Ok(s)
         }
@@ -46,6 +49,9 @@ const FALL_TIME: usize = 100;
                     self.static_block.eliminate_check();
                     self.blockgroup = BlockGroup::random_group_generation(ctx);
                 }
+                if self.static_block.check_game_over() == true {
+                    self.game_over = true;
+                }
             }
             
             Ok(())
@@ -54,16 +60,25 @@ const FALL_TIME: usize = 100;
         fn draw(&mut self, ctx:&mut Context) -> GameResult {
             let mut canvas = 
                 graphics::Canvas::from_frame(ctx,graphics::Color::from([0.1,0.2,0.3,1.0]));
+            if self.game_over == false {
+                let _ = &self.blockgroup.draw(&mut canvas);
+                let _ = &self.static_block.draw(&mut canvas);
+                let score = self.static_block.get_score();
+                let score_text = format!("Score: {}",score);
+                canvas.draw(
+                    graphics::Text::new(&score_text)
+                        .set_font("LiberationMono")
+                        .set_scale(48.),
+                        util::SCORE_WORD_START_POSITION,
+                );
+            }
+            else {
+                let image_gameover = graphics::Image::from_path(ctx, "/assets/pic/game_over.jpeg")?;
+                canvas.draw(&image_gameover, DrawParam::new()
+                .dest(Vec2::new(10.0,10.0))
+                .scale(Vec2::new(1.0,1.0)));
+            }
 
-            let _ = &self.blockgroup.draw(&mut canvas);
-            let _ = &self.static_block.draw(&mut canvas);
-
-            canvas.draw(
-                graphics::Text::new("Welcome")
-                    .set_font("LiberationMono")
-                    .set_scale(48.),
-                    util::SCORE_WORD_START_POSITION,
-            );
             canvas.finish(ctx)?;
 
             self.frames += 1;
