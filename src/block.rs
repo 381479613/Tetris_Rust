@@ -215,7 +215,7 @@ impl BlockGroup {
         let mut block4 = Block::new(ctx);
         
         //init blockgroup position
-        let blockgroup_position = GridPosition::new(0, 0);
+        let blockgroup_position = GridPosition::new(util::GRID_SIZE.0 / 2, 0);
 
         //random type
         let random = rand::thread_rng().gen_range(0..4);
@@ -513,14 +513,17 @@ impl BlockGroup {
 
 pub struct StaticBlockGroup {
     //add a hash map to store position and index
-    block_map: HashMap<(i32, i32), Block>
+    block_map: HashMap<(i32, i32), Block>,
+    score: i32,
 }
 
 impl StaticBlockGroup {
     pub fn new() -> Self{
         let block_map = HashMap::new();
+        let score = 0;
         StaticBlockGroup{ 
             block_map: block_map,
+            score: score,
         }
     }
 
@@ -568,6 +571,7 @@ impl StaticBlockGroup {
         for x in 0..=util::GRID_SIZE.0 {
             self.block_map.remove(&(x,y));
         }
+        self.score += 1;
     }
 
     fn fell_from_upper(&mut self, y: i32) {
@@ -582,6 +586,23 @@ impl StaticBlockGroup {
             update_block_map.insert(new_key, block.clone());
         }
         self.block_map = update_block_map;
+    }
+
+    pub fn check_game_over(&self) -> bool {
+        for block in self.block_map.values() {
+            if block.get_block_position().1 <= 0 {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    pub fn get_score(&self) -> i32 {
+        self.score
+    }
+
+    pub fn clear_score(&mut self) {
+        self.score = 0;
     }
 
     pub fn draw(&mut self, canvas: &mut Canvas) {

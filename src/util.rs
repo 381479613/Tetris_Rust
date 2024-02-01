@@ -1,4 +1,3 @@
-//常用参数与公式
 use ggez::glam::Vec2;
 
 //total grid size in whole game board
@@ -22,7 +21,7 @@ pub const PIC_SCALE_NUMBER: Vec2 = Vec2::new(0.22, 0.22);
 pub const GAME_BOARD_START_POSITION_X: f32 = (WINDOW_GRID.0 - GRID_SIZE.0) as f32/2.0 * WINDOW_GRID.0 as f32;
 pub const GAME_BOARD_START_POSITION_Y: f32 = (WINDOW_GRID.1 - GRID_SIZE.1) as f32/2.0 * WINDOW_GRID.1 as f32;
 
-pub const SCORE_WORD_START_POSITION: Vec2 = Vec2::new(SCREEN_SIZE.0 / 10.0 * 2.0, SCREEN_SIZE.1 /10.0 * 2.0);
+pub const SCORE_WORD_START_POSITION: Vec2 = Vec2::new(SCREEN_SIZE.0 / 10.0 * 3.0, SCREEN_SIZE.1 /10.0 * 1.0);
 
 #[derive(Clone)]
 pub struct GridPosition {
